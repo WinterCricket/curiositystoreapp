@@ -1,7 +1,7 @@
 <?php
 
 	// connect to the database
-	include('yellconnect-db.php');
+	include('curiousconnect-db.php');
 	
 	// confirm that the 'id' variable has been set
 	if (isset($_GET['id']) && is_numeric($_GET['id']))
@@ -23,12 +23,12 @@
 		$mysqli->close();
 		
 		// redirect user after delete is successful
-		header("Location: yellview.php");
+		header("Location: curiousview.php");
 	}
 	else
 	// if the 'id' variable isn't set, redirect the user
 	{
-		header("Location: yellview.php");
+		header("Location: curiousview.php");
 	}
 
 ?>

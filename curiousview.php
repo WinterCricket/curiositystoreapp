@@ -16,11 +16,11 @@
         
         <h1>View Records</h1>
         
-        <p><b>View All</b> | <a href="yellview-paginated.php">View Paginated</a></p>
+        <p><b>View All</b> | <a href="curiouspaginated.php">View Paginated</a></p>
         
         <?php
                         // connect to the database
-        include('yellconnect-db.php');
+        include('curiousconnect-db.php');
         
                         // get the records from the database
         if ($result = $mysqli->query("SELECT * FROM products ORDER BY id"))
@@ -42,8 +42,8 @@
                                 echo "<td>" . $row->name . "</td>";
                                 echo "<td >" . $row->description . "</td>";
                                 echo "<td class='tableColor'>" . $row->price . "</td>";
-                                echo "<td><a href='yellrecords.php?id=" . $row->id . "'>Edit</a></td>";
-                                echo "<td><a href='yelldelete.php?id=" . $row->id . "'>Delete</a></td>";
+                                echo "<td><a href='curiousrecords.php?id=" . $row->id . "'>Edit</a></td>";
+                                echo "<td><a href='curiousdelete.php?id=" . $row->id . "'>Delete</a></td>";
                                 echo "</tr>";
                         }
                         
@@ -66,6 +66,6 @@
         
         ?>
         
-        <a href="yellrecords.php">Add New Record</a>
+        <a href="curiousrecords.php">Add New Record</a>
 </body>
 </html>

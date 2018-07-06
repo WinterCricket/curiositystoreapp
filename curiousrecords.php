@@ -1,5 +1,5 @@
 <?php 
-include("yellconnect-db.php");
+include("curiousconnect-db.php");
 function renderForm($name ='', $desc = '', $price = '', $error = '', $id = '')
 { ?>
 
@@ -89,7 +89,7 @@ function renderForm($name ='', $desc = '', $price = '', $error = '', $id = '')
 					{
 						echo "ERROR: could not prepare SQL statement";
 					}
-					header("Location: yellview.php");
+					header("Location: curiousview.php");
 				}
 			
 			}
@@ -129,7 +129,7 @@ function renderForm($name ='', $desc = '', $price = '', $error = '', $id = '')
 					else
 
 					{
-						header("Location: yellview.php");
+						header("Location: curiousview.php");
 					}
 
 		}
@@ -165,7 +165,7 @@ function renderForm($name ='', $desc = '', $price = '', $error = '', $id = '')
 				{
 					echo "ERROR: could not prepare SQL statement.";
 				}
-				header("Location: yellview.php");	
+				header("Location: curiousview.php");	
 			}
 		}
 		else

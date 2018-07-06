@@ -1,113 +1,179 @@
-<!DOCTYPE HTML>
-<html>
-        <head>  
-                <title>View Records</title>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        </head>
-        <body>
-                
-                <h1>View Records</h1>
-                
-                <?php
-                       //connect to data base
-                        include('yellconnect-db.php');
-                        
-                        // number of results to show per page
-				        $per_page = 3;
-				        
-				        // figure out the total pages in the database
-				        if ($result = $mysqli->query("SELECT * FROM products ORDER BY id"))
-				        {
-				        	if ($result->num_rows != 0)
-				        	{
-				        		$total_results = $result->num_rows;
-				        		// ceil() returns the next highest integer value by rounding up value if necessary
-					        	$total_pages = ceil($total_results / $per_page);
-					        	
-		        				// check if the 'page' variable is set in the URL (ex: view-paginated.php?page=1)
-						        if (isset($_GET['page']) && is_numeric($_GET['page']))
-						        {
-						                $show_page = $_GET['page'];
-						                
-						                // make sure the $show_page value is valid
-						                if ($show_page > 0 && $show_page <= $total_pages)
-						                {
-						                        $start = ($show_page -1) * $per_page;
-						                        $end = $start + $per_page; 
-						                }
-						                else
-						                {
-						                        // error - show first set of results
-						                        $start = 0;
-						                        $end = $per_page; 
-						                }               
-						        }
-						        else
-						        {
-						                // if page isn't set, show first set of results
-						                $start = 0;
-						                $end = $per_page; 
-						        }
-						        
-						        // display pagination
-						        echo "<p><a href='yellview.php'>View All</a> | <b>View Page:</b> ";
-						        for ($i = 1; $i <= $total_pages; $i++)
-						        {
-						        	if (isset($_GET['page']) && $_GET['page'] == $i)
-						        	{
-						        		echo $i . " ";
-						        	}
-						        	else
-						        	{
-						        		echo "<a href='yellview-paginated.php?page=$i'>$i</a> ";
-						        	}
-						        }
-						        echo "</p>";
-						        
-						        // display data in table
-						        echo "<table border='1' cellpadding='10'>";
-						        echo "<tr> <th>ID</th> <th>Name</th> <th>Description</th> <th>Price</th><th></th> <th></th></tr>";
-						
-						        // loop through results of database query, displaying them in the table 
-						        for ($i = $start; $i < $end; $i++)
-						        {
-						        	// make sure that PHP doesn't try to show results that don't exist
-					                if ($i == $total_results) { break; }
-					                
-						        	// find specific row
-						        	$result->data_seek($i);
-   	 								$row = $result->fetch_row();
-   	 								
-   	 								// echo out the contents of each row into a table
-					                echo "<tr>";
-					                echo '<td>' . $row[0] . '</td>';
-					                echo '<td>' . $row[1] . '</td>';
-					                echo '<td>' . $row[2] . '</td>';
-					                echo '<td>' . $row[3] . '</td>';
-					                echo '<td><a href="edit.php?id=' . $row[0] . '">Edit</a></td>';
-					                echo '<td><a href="yelldelete.php?id=' . $row[0] . '">Delete</a></td>';
-					                echo "</tr>";
-						        }
+<?php 
+include("curiousconnect-db.php");
+function renderForm($name ='', $desc = '', $price = '', $error = '', $id = '')
+{ ?>
 
-						        // close table>
-						        echo "</table>";
-				        	}
-				        	else
-				        	{
-				        		echo "No results to display!";
-				        	} 
-				        }
-				        // error with the query
-				        else
-				        {
-				        	echo "Error: " . $mysqli->error;
-				        }
-                                                
-                        // close database connection
-                        $mysqli->close();
-                
-                ?>
-                
-                <a href="yellrecords.php">Add New Record</a>
-        </body>
-</html>
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title><?php 
+		if ($id != '') {
+			echo "Edit the damned record!";
+		} 
+		else
+		{
+			echo "Add a new bloody record!";
+		}
+
+		?></title>
+	</head>
+	<body>
+		<h1><?php 
+		if ($id != '') {
+			echo "Edit the damned record!";
+		} 
+		else
+		{
+			echo "Add a new bloody record!";
+		}
+
+		?></h1>
+		<?php if ($error != '') {
+			echo "<div style='padding:4px; border:1px solid red; color:red'>" . $error
+			. "</div>";
+		} ?>
+		<form action="" method="post">
+			<div>
+				<?php if ($id != '') { ?>
+					<input type="hidden" name="id" value="<?php echo $id; ?>" />
+					<p>ID: <?php echo $id; ?></p>
+				<?php } ?>
+
+				<strong>Name: *</strong> <input type="text" name="name"
+				value="<?php echo $name; ?>"/><br/>
+				<strong>Description: *</strong> <input type="text" name="description"
+				value="<?php echo $desc; ?>"/>
+				<strong>Price: *</strong> <input type="float" name="price"
+				value="<?php echo $price; ?>"/>
+				<p>* required</p>
+				<input type="submit" name="submit" value="Submit" />
+			</div>
+
+
+		</form>
+
+	</body>
+	</html>
+<?php 
+}
+
+	if (isset($_GET['id'])) 
+	{
+
+		if (isset($_POST['submit'])) 
+		{
+			if (is_numeric($_POST['id']))
+				// get variables from the URL/form
+			{
+				$id = $_POST['id'];
+				$name = htmlentities($_POST['name'], ENT_QUOTES);
+				$description = htmlentities($_POST['description'], ENT_QUOTES);
+				$price = htmlentities($_POST['price'], ENT_QUOTES);
+
+				if ($name == "" ||  $description == "" || $price == "") 
+				{
+				$error = 'Error: Complete the form!';
+				renderForm($name, $description, $price, $error, $id);
+				}
+				else
+				{
+					// if everything is fine, update the record in the database
+					if ($stmt = $mysqli->prepare("UPDATE products SET name = ?, description = ?, price = ? WHERE id = ?"))
+					{
+						$stmt->bind_param("ssdi", $name, $description, $price, $id);
+						$stmt->execute();
+						$stmt->close();
+					}
+					else
+					{
+						echo "ERROR: could not prepare SQL statement";
+					}
+					header("Location: curiousview.php");
+				}
+			
+			}
+			else
+			{
+				echo "Error!";
+			}
+		}
+		else
+		{
+
+			//editing existing record
+					if (is_numeric($_GET['id']) && $_GET['id'] > 0) 
+					{
+	 						//query database get id from url
+						$id = $_GET['id'];
+						if ($stmt = $mysqli->prepare("SELECT * FROM products WHERE id=?"))
+						{
+							//binding
+							$stmt->bind_param("i", $id);
+							$stmt->execute();
+
+							$stmt->bind_result($id, $name, $description, $price);
+							$stmt->fetch();
+							// show the form
+
+							renderForm($name, $description, $price, NULL, $id);
+
+							$stmt->close();
+						}
+						else
+						{
+							echo "ERROR: unable to prepare SQL statement.";
+						}
+
+					}
+					else
+
+					{
+						header("Location: curiousview.php");
+					}
+
+		}
+	}
+	else
+	{
+		//create new record
+
+		if (isset($_POST['submit']))
+		{
+
+			$name = htmlentities($_POST['name'], ENT_QUOTES);
+			$description = htmlentities($_POST['description'], ENT_QUOTES);
+			$price = htmlentities($_POST['price'], ENT_QUOTES);
+
+
+
+			if($name == "" ||  $description == "" || $price == "") 
+			{
+				$error = 'Error: Complete the form!';
+				renderForm($name, $description, $price, $error);
+			}
+			else
+			{
+				if($stmt = $mysqli->prepare("INSERT products(name, description, price) VALUES (?, ?, ?)")) 
+				{
+					$stmt->bind_param("ssd", $name, $description, $price);
+					$stmt->execute();
+					$stmt->close();
+				}
+
+				else
+				{
+					echo "ERROR: could not prepare SQL statement.";
+				}
+				header("Location: curiousview.php");	
+			}
+		}
+		else
+		{
+			//create new record
+			renderForm();
+		}
+	}
+	$mysqli->close();
+
+	?>
